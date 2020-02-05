@@ -1,0 +1,233 @@
+---
+title: "16S Gene Analysis: Borrelia burgdorferi"
+author: "Jayan Anpalahan"
+date: "February 5, 2020"
+output: html_document
+--- 
+
+Calling the data of interest.
+```{r eval = FALSE}
+Sequences = read.csv("C:/Users/Jayan/Desktop/BIOL432/Sequences.csv")
+```
+
+```{r include = FALSE}
+Sequences = read.csv("C:/Users/Jayan/Desktop/BIOL432/Sequences.csv")
+```
+
+
+Selecting the part of the "split string" (from the previous "strsplit" used to create individual sequences) which corresponds to Sequence 1.
+
+Used "as.vector" because "gsub" only works on vectors.
+
+"gsub" to create spaces between each nucleotide.
+
+Used "strsplit" again to create a list of nucleotides.
+
+Used "grep" to search for each nucleotide ("A","G","T","C") within the sequence. 
+
+Since the sequence is in list form, "grep" will say what cells contain the nucleotide. We can not sum this because this will add the identies of each cell, rather than count the actual number of cells.
+
+Used "as.matrix" to create the rows for the nucleotides. Therefore, using "nrow" will correspond to the number of a particular nucleotide is found (e.g. AinSeq1). This is repeated for each nucleotide. 
+
+The entire process is repeated for each sequence.
+
+```{r}
+# HQ433692.1 = Seq1
+Seq1 = gsub("(\\w)(\\w)","\\1 \\2 ",as.vector(Sequences[2,2]))
+
+Sequence1 = strsplit(Seq1, split = " ")
+
+FindAinSeq1 = grep("A", Sequence1[[1]])
+AinSeq1 = nrow(as.matrix(FindAinSeq1))
+
+FindGinSeq1 = grep("G", Sequence1[[1]])
+GinSeq1 = nrow(as.matrix(FindGinSeq1))
+
+FindTinSeq1 = grep("T", Sequence1[[1]])
+TinSeq1 = nrow(as.matrix(FindTinSeq1))
+
+FindCinSeq1 = grep("C", Sequence1[[1]])
+CinSeq1 = nrow(as.matrix(FindCinSeq1))
+
+#HQ433694.1 = Seq2
+Seq2 = gsub("(\\w)(\\w)","\\1 \\2 ",as.vector(Sequences[3,2]))
+
+Sequence2 = strsplit(Seq2, split = " ")
+
+FindAinSeq2 = grep("A", Sequence2[[1]])
+AinSeq2 = nrow(as.matrix(FindAinSeq2))
+
+FindGinSeq2 = grep("G", Sequence2[[1]])
+GinSeq2 = nrow(as.matrix(FindGinSeq2))
+
+FindTinSeq2 = grep("T", Sequence2[[1]])
+TinSeq2 = nrow(as.matrix(FindTinSeq2))
+
+FindCinSeq2 = grep("C", Sequence2[[1]])
+CinSeq2 = nrow(as.matrix(FindCinSeq2))
+
+# HQ433691.1 = Seq3
+Seq3 = gsub("(\\w)(\\w)","\\1 \\2 ",as.vector(Sequences[4,2]))
+
+Sequence3 = strsplit(Seq3, split = " ")
+
+FindAinSeq3 = grep("A", Sequence3[[1]])
+AinSeq3 = nrow(as.matrix(FindAinSeq3))
+
+FindGinSeq3 = grep("G", Sequence3[[1]])
+GinSeq3 = nrow(as.matrix(FindGinSeq3))
+
+FindTinSeq3 = grep("T", Sequence3[[1]])
+TinSeq3 = nrow(as.matrix(FindTinSeq3))
+
+FindCinSeq3 = grep("C", Sequence3[[1]])
+CinSeq3 = nrow(as.matrix(FindCinSeq3))
+```
+#Borrelia burgdorferi Sequences of Interest
+
+
+###Sequence 1 which corresponds to the ID: HQ433692.1
+```{r}
+print(Seq1)
+```
+###Sequence 2 which corresponds to the ID: HQ433694.1
+```{r}
+print(Seq2)
+```
+###Sequence 3 which corresponds to the ID: HQ433691.1
+```{r}
+print(Seq3)
+```
+
+Format is an exclamation mark ("!"), then the caption desired in square brackets ("[]"), and then the path in regular brackets ("()").
+
+![Borrelia burgdorferi](C:/Users/Jayan/Desktop/BIOL432/Assignment 5 image.jpg)
+
+Link to Wikipedia Page Discussing "Borrelia burgdorferi":
+
+https://en.wikipedia.org/wiki/Borrelia_burgdorferi
+
+"scales" package used to convert "GC.Content" into a percentage value and format.
+```{r}
+library("scales")
+library("dplyr")
+```
+
+Above, since we counted the rows that contained a nucleotide of interest, we can repeat this except we do not have a "grep" function that counts particular nucleotides, therefore the entire sequence rows (corresponds to all nucleotides) will be counted.
+
+GC content is calculated by setting a variable for each sequence to be equal to the sum of the adenine and guanine found, divided by the total. This gives the decimal value/fractional value. 
+
+To convert to percentage, the "percent" function is used against all sequences.
+```{r}
+NinSeq1 = (nrow(as.matrix(Sequence1[[1]])))
+NinSeq2 = (nrow(as.matrix(Sequence2[[1]])))
+NinSeq3 = (nrow(as.matrix(Sequence3[[1]])))
+
+GCSeq1 = ((GinSeq1 + CinSeq1)/NinSeq1)
+GCSeq2 = ((GinSeq2 + CinSeq2)/NinSeq2)
+GCSeq3 = ((GinSeq3 + CinSeq3)/NinSeq3)
+
+GC.Content = percent(c(GCSeq1,  GCSeq2,  GCSeq3))
+```
+
+
+Setting all important variables into a data frame called "Nucleotides". 
+
+Each variable is called a header, and then this header is set to equal the concatenation of the corresponding sequence's data for that category.
+```{r}
+Nucleotides = data.frame("Sequence ID" = c("HQ433692.1","HQ433694.1","HQ433691.1"), 
+                             "Adenine" = c(AinSeq1, AinSeq2, AinSeq3),
+                             "Guanine" = c(GinSeq1, GinSeq2, GinSeq3),
+                             "Thymine" = c(TinSeq1, TinSeq2, TinSeq3),
+                             "Cytosine"= c(CinSeq1, CinSeq2, CinSeq3),
+                    "Nucleotide Total" = c(NinSeq1, NinSeq2, NinSeq3),
+                             GC.Content)
+```
+
+We do not want all variables displayed, so we can use the "dplyr" function called "select" to pick out what variables we need. 
+
+Nucleotides only ("NucleotidesOnly") is everything except the GC Content. We simply leave out the "GC.Content" and enter in every other variable to be selected.
+
+The same is done for "GCOnly" except we leave out everything except the "Sequence.ID" and "GC.Content".
+
+```{r}
+NucleotidesOnly = dplyr::select(Nucleotides, 
+                         Sequence.ID, 
+                         Adenine, 
+                         Guanine,
+                         Thymine,
+                         Cytosine,
+                         Nucleotide.Total)
+
+GCOnly = dplyr::select(Nucleotides,
+                       Sequence.ID, 
+                       GC.Content)
+```
+
+Call up "knitr"" for tables, and "kableExtra" for tables that are delicious.
+```{r}
+library(knitr)
+library(kableExtra)
+```
+
+#Nucleotide Amounts and Total
+
+Set "kable" to our data of interest, then pipe it ("%>%") to the kabelExtra styler "kable_styling" to format things like the font to be bold ("bold = T"). "columns_spec"just means what columns to manipulate as a numerical value. There are 6 total, so we simply set that value to manipulate 1 to 6 ("1:6").
+```{r}
+kable (NucleotidesOnly) %>%
+  kable_styling(full_width= F) %>%
+  column_spec(1:6, 
+              bold = T, 
+              color = "black",
+              background = "white"
+              )
+```
+
+#GC Content
+
+Set "kable" to our data of interest, then pipe it ("%>%") to the kabelExtra styler "kable_styling" to format things like the font to be bold ("bold = T"). "columns_spec"just means what columns to manipulate as a numerical value.
+```{r}
+kable (GCOnly) %>%
+  kable_styling(full_width= F) %>%
+  column_spec(1:2, 
+              bold = T, 
+              color = "black",
+              background = "white"
+              )
+```
+#GC Content of Species A, B, and C
+
+Call up "ggplot2" to graph data. Data in this case, is the GC Data from the file "GC_content.csv", which is set to "GCData".
+
+```{r}
+library("ggplot2")
+
+GCData = read.csv("C:/Users/Jayan/Desktop/BIOL432/GC_content.csv")
+```
+
+##Graph of GC Content (%) vs Species
+
+We first need to make sure the GC content is there, since the original file has the G percent and C percent separately. The GC content is simply the sum of the percentage of both of these nucleotides.
+
+"transmute" basically allows us to combine original data with new data which is an operation (e.g. addition) of the original data.
+
+We name a varibale called "GC_Content" to equal the sum of the "G" and "C" columns (correspond to G and C percentages).
+
+This variable is then placed into a new data frame called "GCContentGraph", which is a combination of the original data ("GCData") and "GC_Content". 
+
+We do not want every column from the original data frame, so we input the column of interest ("Species") and the new column ("GC_Content").
+
+"qplot" automatically does a scatterplot, but since we have a categorical variable as the x-axis, and a continuous as the y-axis, the output will look like scattered line made up of individual data points for each species. 
+
+```{r}
+GCContentGraph = dplyr::transmute(GCData, Species, GC_Content = G + C)
+
+qplot(x=Species, y=GC_Content, data= GCContentGraph, 
+      shape= Species, 
+      colour=Species,
+      size=I(3), 
+      xlab = "Species",
+      ylab = "GC Content (%)",
+      asp = 3) + theme_classic(base_size = 15)
+```
+
